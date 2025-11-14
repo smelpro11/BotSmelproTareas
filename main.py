@@ -12,7 +12,7 @@ URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 TZ = pytz.timezone("America/Lima")
 
 # Chat ID único
-CHAT_ID = 6197999828
+CHAT_ID = -665612637
 
 def send_message(text):
     try:
