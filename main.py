@@ -32,7 +32,7 @@ print("===================================\n")
 tareas_programadas = []
 
 for _, row in df.iterrows():
-    empleado = str(row['EMPLEADO']).strip()
+    empleado = str(row['ID']).strip()
     tarea = str(row['TAREA']).strip()
 
     # ------- FECHA -------
