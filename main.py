@@ -24,7 +24,7 @@ def send_message(text):
 
 print("Cargando tareas desde Excel...")
 
-df = pd.read_excel("tareas.xlsx")
+df = pd.read_excel("Tareas.xlsx")
 print("\n===== CONTENIDO EXCEL (DEBUG) =====")
 print(df)
 print("===================================\n")
