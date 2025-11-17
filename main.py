@@ -12,7 +12,7 @@ URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 TZ = pytz.timezone("America/Lima")
 
 # Chat ID único
-CHAT_ID = -665612637
+CHAT_ID = -1003343414449
 
 def send_message(text):
     try:
@@ -22,12 +22,12 @@ def send_message(text):
     except Exception as e:
         print("Error enviando mensaje:", e)
 
-print("Cargando tareas desde Excel...")
+# print("Cargando tareas desde Excel...")
 
 df = pd.read_excel("Tareas.xlsx")
-print("\n===== CONTENIDO EXCEL (DEBUG) =====")
-print(df)
-print("===================================\n")
+# print("\n===== CONTENIDO EXCEL (DEBUG) =====")
+# print(df)
+# print("===================================\n")
 
 tareas_programadas = []
 
@@ -48,7 +48,7 @@ for _, row in df.iterrows():
 
     # ------- HORA -------
     hora_val = row["HORA"]
-    print("DEBUG HORA RAW:", hora_val, type(hora_val))
+    # print("DEBUG HORA RAW:", hora_val, type(hora_val))
 
     if isinstance(hora_val, datetime.datetime):
         hora = hora_val.time()
@@ -63,7 +63,7 @@ for _, row in df.iterrows():
     fecha_dt = datetime.datetime.combine(fecha, hora)
     fecha_dt = TZ.localize(fecha_dt)
 
-    print(f"--> Tarea generada: {empleado} | {tarea} | Fecha y hora final: {fecha_dt}\n")
+    # print(f"--> Tarea generada: {empleado} | {tarea} | Fecha y hora final: {fecha_dt}\n")
 
     mensaje = f"Hola {empleado}, tu tarea para hoy: {tarea} 🧹"
 
@@ -73,19 +73,19 @@ for _, row in df.iterrows():
         "enviado": False
     })
 
-print("Bot activo. Esperando tareas...\n")
+# print("Bot activo. Esperando tareas...\n")
 
 while True:
     now = datetime.datetime.now(TZ)
-    print("Hora actual:", now)
+    # print("Hora actual:", now)
 
     for tarea in tareas_programadas:
-        print(f" Revisando -> {tarea['mensaje']} | programado para {tarea['datetime']} | enviado: {tarea['enviado']}")
+        # print(f" Revisando -> {tarea['mensaje']} | programado para {tarea['datetime']} | enviado: {tarea['enviado']}")
 
         if not tarea["enviado"] and now >= tarea["datetime"]:
-            print("\n>>> Ejecutando tarea ahora <<<")
+            # print("\n>>> Ejecutando tarea ahora <<<")
             send_message(tarea["mensaje"])
             tarea["enviado"] = True
 
-    print("Esperando 30 segundos...\n")
+    # print("Esperando 30 segundos...\n")
     time.sleep(30)
