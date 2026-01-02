@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)
 TOKEN = "8227348236:AAE5e-s90zqlBujgfpLLZd4h4UFfqY1p1NU"
 URL =f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 CHAT_ID = -1003343414449
-TZ = pytz.timezone('America/Lima')  # Ajusta tu zona horaria
+# CHAT_ID = 6197999828
+TZ = pytz.timezone('America/Lima')  # Ajusta la zona horaria
 
 # Archivo para persistir mensajes enviados
 ENVIADOS_FILE = "tareas_enviadas.json"
@@ -51,6 +52,32 @@ def send_message(text):
     except Exception as e:
         logger.error(f"Error enviando mensaje: {e}")
         return False
+    
+def verificar_y_enviar_mensajes_recurrentes():
+    now = datetime.datetime.now(TZ)
+    logger.info(f"Verificando mensajes recurrentes - Día: {now.strftime('%A')} Hora: {now.strftime('%H:%M')}")
+    if now.weekday() > 4:  # Solo lunes a viernes
+        logger.info("Es fin de semana, no se envían mensajes recurrentes")
+        return
+    
+    fecha_key = now.strftime("%Y-%m-%d")
+    horas_envio = [
+        {"hora": datetime.time(9, 0), "clave": "09:00", "mensaje": " ¡Hola, equipo! No olviden revisar sus pendientes, priorizar las tareas más importantes y consultar cualquier duda que tengan. Mantengamos el enfoque y evitemos distracciones. ¡Que sea un día lleno de energía, aprendizaje y trabajos muy bien realizados! 💪✨"},
+        {"hora": datetime.time(18, 0), "clave": "18:00", "mensaje": "Hoy estamos teniendo un excelente día, lleno de nuevos retos y oportunidades. Antes de retirarte, por favor actualiza tus actividades. Esto te ayudará a organizar mejor tus tareas y a ejecutarlas de manera más eficiente. No olvides limpiar y organizar tu espacio de trabajo antes de salir, ya que un entorno ordenado contribuye a un mejor desempeño. ¡Sigamos avanzando juntos!"}
+    ]
+    
+    enviados = cargar_enviados()
+    
+    for config in horas_envio:
+        mensaje_key = f"recurrente_{fecha_key}_{config['clave']}"
+        if mensaje_key in enviados:
+            continue
+        
+        diferencia_minutos = (now.hour * 60 + now.minute) - (config['hora'].hour * 60 + config['hora'].minute)
+        if 0 <= diferencia_minutos <= 5:
+            logger.info(f">>> ENVIANDO MENSAJE RECURRENTE {config['clave']} <<<")
+            if send_message(config['mensaje']):
+                guardar_enviado(mensaje_key)
 
 # Forzar flush de stdout
 sys.stdout.flush()
@@ -122,6 +149,7 @@ logger.info(f"Hora actual: {datetime.datetime.now(TZ)}")
 # Mostrar próximas tareas pendientes
 logger.info("=== PRÓXIMAS TAREAS PENDIENTES ===")
 now = datetime.datetime.now(TZ)
+
 count = 0
 for tarea in tareas_programadas:
     if not tarea["enviado"] and tarea["datetime"] > now:
@@ -144,7 +172,7 @@ sys.stdout.flush()
 
 while True:
     now = datetime.datetime.now(TZ)
-    
+    verificar_y_enviar_mensajes_recurrentes()
     for tarea in tareas_programadas:
         if not tarea["enviado"]:
             tiempo_diff = (now - tarea["datetime"]).total_seconds() / 60
@@ -158,6 +186,6 @@ while True:
                 if send_message(tarea["mensaje"]):
                     tarea["enviado"] = True
                     guardar_enviado(tarea["id"])
-                    logger.info("✓ Tarea marcada como enviada y guardada")
+                    logger.info("Tarea marcada como enviada y guardada")
     
     time.sleep(30)
